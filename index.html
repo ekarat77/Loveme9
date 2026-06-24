@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ใกล้กัน 💕 - Mobile Edition</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#09090E">
+<link rel="apple-touch-icon" href="icon.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -20,7 +24,7 @@
 }
 html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-th); overflow: hidden; position: relative; }
 
-/* AUTH SCREEN (Mobile Optimized) */
+/* AUTH SCREEN */
 #auth-screen {
   position: fixed; inset: 0; z-index: 999; background: var(--bg);
   display: flex; flex-direction: column; justify-content: center; padding: 24px;
@@ -70,11 +74,11 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .circle-btn:active { transform: scale(0.9); }
 .circle-btn.heart { background: rgba(236,72,153,0.2); border-color: rgba(236,72,153,0.4); color: var(--partner); }
 
-/* MOBILE BOTTOM SHEET (แผงควบคุมด้านล่างสไตล์แอปมือถือ) */
+/* MOBILE BOTTOM SHEET */
 .bottom-sheet {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
   background: var(--card); border-top: 1px solid var(--border);
-  border-radius: 32px 32px 0 0; padding: 16px 20px 34px; /* เผื่อพื้นที่ปุ่ม Home ของ iPhone X ขึ้นไป */
+  border-radius: 32px 32px 0 0; padding: 16px 20px 34px;
   box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
 }
 .sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 16px; }
@@ -228,12 +232,16 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 <script>
 // ── SUPABASE CONFIG ───────────────────────────────────────
 const SUPABASE_URL = 'https://ccrvtcmcayvjxzglrsae.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjcnZ0Y21jYXl2anh6Z2xyc2FlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyODY0MDMsImV4cCI6MjA5Nzg2MjQwM30.P2aeSJni7XDgEgq1ITcrDaUs7az14uxA-6h6lV_jBm0';
+const SUPABASE_ANON_KEY = 'sb_publishable_L1Z2kIJ7JP05yrdYdJ3m9w_pkmpo4Nk';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let map, meMarker, partnerMarker, polyline;
 let currentUser = null, myProfileName = "ฉัน", partnerUserId = null;
 let myPos = null, partnerPos = null, realtimeChannel = null;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(err => console.log("SW Error:", err));
+}
 
 // ── 1. AUTH LOGIC ────────────────────────────────────────
 async function checkSession() {
@@ -375,6 +383,7 @@ function broadcastData(data) {
   realtimeChannel.send({ type: 'broadcast', event: 'share', payload: { ...data, sender: currentUser.id } });
 }
 
+// แก้ไขฟังก์ชันส่งหัวใจให้ดึงข้อมูลตามห้องที่ตรงกัน
 function sendHeart() {
   if(!partnerUserId) return showToast("🔗 อย่าลืมเชื่อมต่อคีย์กับแฟนก่อนส่งหัวใจนะครับ");
   broadcastData({ type: 'heart', name: myProfileName });
