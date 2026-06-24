@@ -2,210 +2,228 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ใกล้กัน 💕 - Premium</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ใกล้กัน 💕 - Mobile Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
-  --bg: #0A0A0F; --card: #13131F; --card2: #1A1A2E;
-  --me: #6B9DFF; --partner: #FF6B9D;
-  --text: #E8E8F0; --muted: #6B6B8A; --border: rgba(255,255,255,0.08);
-  --font-display: 'Prompt', sans-serif; --font-body: 'Inter', sans-serif;
+  --bg: #09090E; --card: #12121A; --card-light: #1A1A26;
+  --me: #4F46E5; --me-light: rgba(79,70,229,0.15);
+  --partner: #EC4899; --partner-light: rgba(236,72,153,0.15);
+  --text: #F3F4F6; --muted: #9CA3AF; --border: rgba(255,255,255,0.06);
+  --font-th: 'Prompt', sans-serif; --font-en: 'Inter', sans-serif;
 }
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); overflow: hidden; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-th); overflow: hidden; position: relative; }
 
-/* AUTH SCREEN */
+/* AUTH SCREEN (Mobile Optimized) */
 #auth-screen {
   position: fixed; inset: 0; z-index: 999; background: var(--bg);
-  display: flex; align-items: center; justify-content: center; padding: 20px;
+  display: flex; flex-direction: column; justify-content: center; padding: 24px;
 }
 .auth-box {
-  width: 100%; max-width: 380px; background: var(--card); border: 1px solid var(--border);
-  border-radius: 24px; padding: 32px 24px; text-align: center;
+  width: 100%; max-width: 400px; margin: 0 auto; background: var(--card); 
+  border: 1px solid var(--border); border-radius: 28px; padding: 32px 24px; text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
 }
-.auth-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(135deg, var(--me), var(--partner)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.auth-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.auth-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; background: linear-gradient(135deg, var(--me), var(--partner)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.auth-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; font-family: var(--font-en); }
 
-/* MAIN APP */
-#app-screen { display: none; height: 100%; }
-#map { position: absolute; inset: 0; z-index: 1; filter: brightness(0.85) saturate(1.1); }
+/* MAIN APP SCREEN */
+#app-screen { display: none; height: 100%; width: 100%; position: relative; }
+#map { position: absolute; inset: 0; z-index: 1; filter: brightness(0.9) saturate(1.1); }
 
-.top-panel {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
-  padding: 12px 16px 0; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+/* TOP STATUS BAR */
+.mobile-top-bar {
+  position: absolute; top: 16px; left: 16px; right: 16px; z-index: 10;
+  background: rgba(18,18,26,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 20px; padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between; pointer-events: auto;
 }
-.header-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
-  border: 1px solid var(--border); border-radius: 20px; padding: 10px 16px; pointer-events: all;
+.brand-name { font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--me), var(--partner)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.status-right { display: flex; align-items: center; gap: 12px; }
+.live-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #10B981; font-family: var(--font-en); }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; animation: blink 1.6s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* DISTANCE FLOATING BADGE */
+.mobile-dist-badge {
+  position: absolute; top: 84px; left: 50%; transform: translateX(-50%); z-index: 10;
+  background: rgba(18,18,26,0.9); border: 1px solid var(--border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 8px 18px; border-radius: 999px; display: none; align-items: center; gap: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
-.app-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--me), var(--partner)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.live-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #4ade80; font-weight: 500; }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.dist-txt { font-size: 16px; font-weight: 700; color: #FFF; font-family: var(--font-en); }
+.dist-lbl { font-size: 11px; color: var(--muted); }
 
-.profiles-row { display: flex; gap: 8px; pointer-events: all; }
-.profile-card {
-  flex: 1; background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
-  border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px;
-  display: flex; align-items: center; gap: 8px; cursor: pointer;
+/* FLOATING INTERACTION BUTTONS */
+.floating-actions { position: absolute; right: 16px; bottom: 250px; z-index: 10; display: flex; flex-direction: column; gap: 12px; }
+.circle-btn {
+  width: 48px; height: 48px; border-radius: 50%; background: rgba(18,18,26,0.85); border: 1px solid var(--border);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; transition: transform 0.2s;
 }
-.profile-card.me { border-bottom: 3px solid var(--me); }
-.profile-card.partner { border-bottom: 3px solid var(--partner); }
-.avatar-emoji { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.me .avatar-emoji { background: rgba(107,157,255,0.15); border: 1.5px solid var(--me); }
-.partner .avatar-emoji { background: rgba(255,107,157,0.15); border: 1.5px solid var(--partner); }
-.profile-info { flex: 1; min-width: 0; }
-.profile-name { font-family: var(--font-display); font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.profile-sub { font-size: 10px; color: var(--muted); }
+.circle-btn:active { transform: scale(0.9); }
+.circle-btn.heart { background: rgba(236,72,153,0.2); border-color: rgba(236,72,153,0.4); color: var(--partner); }
 
-.dist-card {
-  background: rgba(10,10,15,0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 8px 16px;
-  display: flex; align-items: center; justify-content: center; gap: 6px; pointer-events: all; align-self: center;
+/* MOBILE BOTTOM SHEET (แผงควบคุมด้านล่างสไตล์แอปมือถือ) */
+.bottom-sheet {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+  background: var(--card); border-top: 1px solid var(--border);
+  border-radius: 32px 32px 0 0; padding: 16px 20px 34px; /* เผื่อพื้นที่ปุ่ม Home ของ iPhone X ขึ้นไป */
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
 }
-.dist-value { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: #fff; }
-.dist-label { font-size: 11px; color: var(--muted); }
+.sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 16px; }
 
-/* CONTROLS */
-.bottom-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 8px; pointer-events: all; }
-.btn {
-  height: 42px; border-radius: 999px; border: 1px solid var(--border); background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
-  color: var(--text); cursor: pointer; font-family: var(--font-display); font-size: 13px; font-weight: 500; padding: 0 16px;
-  display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+.quick-profiles { display: flex; gap: 12px; margin-bottom: 18px; }
+.mini-card {
+  flex: 1; background: var(--card-light); border: 1px solid transparent; border-radius: 20px; padding: 12px;
+  display: flex; align-items: center; gap: 10px;
 }
-.btn.primary { background: linear-gradient(135deg, var(--me), var(--partner)); border: none; color: #fff; }
-.btn:active { transform: scale(0.95); }
+.mini-card.me { border-bottom: 3px solid var(--me); }
+.mini-card.partner { border-bottom: 3px solid var(--partner); }
+.mini-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.me .mini-avatar { background: var(--me-light); }
+.partner .mini-avatar { background: var(--partner-light); }
+.mini-info { flex: 1; min-width: 0; }
+.mini-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-status { font-size: 11px; color: var(--muted); }
 
-.heart-btn { position: fixed; right: 16px; bottom: 90px; z-index: 10; width: 48px; height: 48px; border-radius: 50%; background: rgba(255,107,157,0.25); border: 1px solid rgba(255,107,157,0.4); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+.bottom-buttons-grid { display: flex; gap: 10px; }
+.btn-mob {
+  flex: 1; height: 50px; border-radius: 16px; border: 1px solid var(--border); background: var(--card-light);
+  color: var(--text); font-family: var(--font-th); font-size: 14px; font-weight: 600; display: flex;
+  align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: background 0.2s;
+}
+.btn-mob:active { background: rgba(255,255,255,0.05); }
+.btn-mob.accent { background: linear-gradient(135deg, var(--me), var(--partner)); border: none; color: #FFF; }
+.btn-mob.accent:active { opacity: 0.9; }
 
-/* FORMS */
-.form-group { margin-bottom: 14px; text-align: left; }
-.form-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
-.form-input { width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; }
+/* UTILS */
+.form-group { margin-bottom: 16px; text-align: left; }
+.form-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 500; }
+.form-input { width: 100%; background: var(--card-light); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; color: var(--text); font-family: var(--font-th); font-size: 15px; outline: none; }
 .form-input:focus { border-color: var(--me); }
 
-/* MODAL & TOAST */
-.modal-overlay { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; }
-.modal-overlay.open { display: flex; }
-.modal { width: 100%; max-width: 400px; background: var(--card); border: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 24px 24px 32px; transform: translateY(100%); transition: transform 0.3s ease-out; }
-.modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+/* MOBILE FULL OVERLAY MODAL */
+.mob-modal-overlay { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); align-items: flex-end; }
+.mob-modal-overlay.open { display: flex; }
+.mob-modal { width: 100%; background: var(--card); border-radius: 32px 32px 0 0; padding: 24px 24px 40px; border-top: 1px solid var(--border); transform: translateY(100%); transition: transform 0.25s ease-out; }
+.mob-modal-overlay.open .mob-modal { transform: translateY(0); }
+.mob-modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
 
-.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(19,19,31,0.95); border: 1px solid var(--border); border-radius: 12px; padding: 10px 20px; font-size: 13px; z-index: 999; opacity: 0; transition: all 0.3s; pointer-events: none; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.floating-heart { position: fixed; z-index: 200; pointer-events: none; font-size: 24px; animation: floatUp 2s ease-out forwards; }
-@keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-140px) scale(0.5); opacity: 0; } }
+.toast-mob { position: fixed; bottom: 200px; left: 50%; transform: translateX(-50%) translateY(10px); background: rgba(18,18,26,0.95); border: 1px solid var(--border); border-radius: 14px; padding: 12px 24px; font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; transition: all 0.25s; pointer-events: none; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.toast-mob.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.heart-fx { position: fixed; z-index: 200; pointer-events: none; font-size: 28px; animation: floatUpMob 1.8s ease-out forwards; }
+@keyframes floatUpMob { 0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 1; } 100% { transform: translateY(-160px) scale(1.3) rotate(15deg); opacity: 0; } }
 </style>
 </head>
 <body>
 
-<!-- 1. AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-title">ใกล้กัน 💕</div>
-    <div class="auth-subtitle">ระบบระบุตำแหน่งเรียลไทม์คู่รัก</div>
+    <div class="auth-subtitle">REALTIME COUPLE TRACKER</div>
     
     <div class="form-group">
-      <label class="form-label">อีเมล</label>
-      <input type="email" id="auth-email" class="form-input" placeholder="name@example.com">
+      <label class="form-label">อีเมลของคุณ</label>
+      <input type="email" id="auth-email" class="form-input" placeholder="example@gmail.com" autocomplete="email">
     </div>
     <div class="form-group">
       <label class="form-label">รหัสผ่าน</label>
       <input type="password" id="auth-password" class="form-input" placeholder="••••••••">
     </div>
     
-    <button class="btn primary" style="width:100%; justify-content:center; margin-top:10px;" onclick="handleAuth('login')">เข้าสู่ระบบ</button>
-    <button class="btn" style="width:100%; justify-content:center; margin-top:8px; border:none;" onclick="handleAuth('signup')">ลงทะเบียนสมาชิกใหม่</button>
+    <button class="btn-mob accent" style="width:100%; margin-top:12px;" onclick="handleAuth('login')">เข้าสู่ระบบ</button>
+    <button class="btn-mob" style="width:100%; margin-top:8px; border:none; background:transparent; font-size:13px; color:var(--muted);" onclick="handleAuth('signup')">ยังไม่มีบัญชี? ลงทะเบียนที่นี่</button>
   </div>
 </div>
 
-<!-- 2. MAIN APP SCREEN -->
 <div id="app-screen">
   <div id="map"></div>
 
-  <div class="top-panel">
-    <div class="header-bar">
-      <span class="app-title">ใกล้กัน 💕</span>
-      <div class="header-right">
-        <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-        <button class="btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="handleLogout()">ออกระบบ</button>
-      </div>
+  <div class="mobile-top-bar">
+    <span class="brand-name">ใกล้กัน 💕</span>
+    <div class="status-right">
+      <div class="live-indicator"><div class="live-dot"></div> LIVE</div>
+      <span style="font-size: 12px; color: var(--muted);" onclick="handleLogout()">ออกจากระบบ</span>
     </div>
+  </div>
 
-    <div class="profiles-row">
-      <div class="profile-card me" onclick="openEditModal()">
-        <div class="avatar-emoji" id="me-avatar">😊</div>
-        <div class="profile-info">
-          <div class="profile-name" id="me-name">กำลังโหลด...</div>
-          <div class="profile-sub">ฉัน</div>
+  <div class="mobile-dist-badge" id="dist-card">
+    <span class="dist-txt" id="dist-value">--</span>
+    <span class="dist-lbl">ห่างกัน</span>
+  </div>
+
+  <div class="floating-actions">
+    <div class="circle-btn heart" onclick="sendHeart()">💝</div>
+    <div class="circle-btn" onclick="locateMe()">📍</div>
+    <div class="circle-btn" onclick="centerMap()">🎯</div>
+  </div>
+
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    
+    <div class="quick-profiles">
+      <div class="mini-card me" onclick="openEditModal()">
+        <div class="mini-avatar">🙋‍♂️</div>
+        <div class="mini-info">
+          <div class="mini-name" id="me-name">กำลังโหลด...</div>
+          <div class="mini-status">โปรไฟล์ของฉัน</div>
         </div>
       </div>
-
-      <div class="profile-card partner" onclick="openConnectModal()">
-        <div class="avatar-emoji" id="partner-avatar">🥰</div>
-        <div class="profile-info">
-          <div class="profile-name" id="partner-name">ยังไม่เชื่อมต่อ</div>
-          <div class="profile-sub" id="partner-status">รอแฟนเชื่อมต่อ...</div>
+      <div class="mini-card partner" onclick="openConnectModal()">
+        <div class="mini-avatar">👑</div>
+        <div class="mini-info">
+          <div class="mini-name" id="partner-name">ยังไม่เชื่อมต่อ</div>
+          <div class="mini-status" id="partner-status">จิ้มเพื่อจับคู่แฟน</div>
         </div>
       </div>
     </div>
 
-    <div class="dist-card" id="dist-card" style="display:none;">
-      <span class="dist-value" id="dist-value">--</span>
-      <span class="dist-label">ห่างจากแฟน</span>
-    </div>
-  </div>
-
-  <div class="heart-btn" onclick="sendHeart()">💌</div>
-
-  <div class="bottom-bar">
-    <button class="btn" onclick="centerMap()">🎯 ดูทั้งคู่</button>
-    <button class="btn primary" onclick="openConnectModal()">🔗 เชื่อมต่อแฟน</button>
-    <button class="btn" onclick="locateMe()">📍 ตำแหน่งฉัน</button>
-  </div>
-</div>
-
-<!-- EDIT PROFILE MODAL -->
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal">
-    <div class="modal-title">✏️ แก้ไขโปรไฟล์ของคุณ</div>
-    <div class="form-group">
-      <label class="form-label">ชื่อของคุณ</label>
-      <input class="form-input" id="edit-name-input" type="text">
-    </div>
-    <div class="modal-actions" style="display:flex; gap:8px; margin-top:16px;">
-      <button class="btn" style="flex:1; justify-content:center;" onclick="closeModal('edit-modal')">ยกเลิก</button>
-      <button class="btn primary" style="flex:1; justify-content:center;" onclick="saveProfile()">บันทึก</button>
+    <div class="bottom-buttons-grid">
+      <button class="btn-mob accent" onclick="openConnectModal()">🔗 คีย์เชื่อมต่อคู่รัก</button>
     </div>
   </div>
 </div>
 
-<!-- CONNECT MODAL -->
-<div class="modal-overlay" id="connect-modal">
-  <div class="modal">
-    <div class="modal-title">🔗 เชื่อมต่อกับหวานใจ</div>
+<div class="mob-modal-overlay" id="edit-modal">
+  <div class="mob-modal">
+    <div class="mob-modal-title">✏️ เปลี่ยนชื่อเล่นของคุณ</div>
     <div class="form-group">
-      <label class="form-label">คีย์ส่วนตัวของคุณ (ส่งให้อีกฝ่าย)</label>
-      <input class="form-input" id="my-connect-key" type="text" readonly style="background:var(--card2); color:var(--me); font-family:monospace; font-weight:bold;">
+      <label class="form-label">ชื่อที่ต้องการให้แฟนเห็น</label>
+      <input class="form-input" id="edit-name-input" type="text" placeholder="พิมพ์ชื่อเล่นของคุณ...">
     </div>
-    <div class="form-group">
-      <label class="form-label">ใส่คีย์ส่วนตัวของแฟน</label>
-      <input class="form-input" id="partner-key-input" type="text" placeholder="วางคีย์ส่วนตัวของแฟนที่นี่...">
-    </div>
-    <div class="modal-actions" style="display:flex; gap:8px; margin-top:16px;">
-      <button class="btn" style="flex:1; justify-content:center;" onclick="closeModal('connect-modal')">ปิด</button>
-      <button class="btn primary" style="flex:1; justify-content:center;" onclick="saveConnection()">เชื่อมต่อ</button>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn-mob" onclick="closeModal('edit-modal')">ยกเลิก</button>
+      <button class="btn-mob accent" onclick="saveProfile()">บันทึกข้อมูล</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="mob-modal-overlay" id="connect-modal">
+  <div class="mob-modal">
+    <div class="mob-modal-title">🔗 จับคู่ห้องกับแฟน</div>
+    <div class="form-group">
+      <label class="form-label">คีย์ส่วนตัวของคุณ (กดคัดลอกส่งให้แฟน)</label>
+      <input class="form-input" id="my-connect-key" type="text" readonly onclick="this.select(); document.execCommand('copy'); alert('คัดลอกคีย์แล้วครับ!');" style="background:var(--card-light); color:var(--partner); font-family:monospace; font-weight:700; text-align:center;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">วางคีย์ส่วนตัวของแฟน</label>
+      <input class="form-input" id="partner-key-input" type="text" placeholder="วางรหัสที่แฟนส่งมาให้...">
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn-mob" onclick="closeModal('connect-modal')">ปิดหน้าต่าง</button>
+      <button class="btn-mob accent" onclick="saveConnection()">เชื่อมต่อทันที</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-mob" id="toast"></div>
 
 <script>
 // ── SUPABASE CONFIG ───────────────────────────────────────
@@ -220,9 +238,8 @@ let myPos = null, partnerPos = null, realtimeChannel = null;
 // ── 1. AUTH LOGIC ────────────────────────────────────────
 async function checkSession() {
   const { data } = await sb.auth.getSession();
-  if (data.session) {
-    setupApp(data.session.user);
-  } else {
+  if (data.session) { setupApp(data.session.user); } 
+  else {
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
   }
@@ -241,17 +258,11 @@ async function handleAuth(type) {
     result = await sb.auth.signInWithPassword({ email, password });
   }
 
-  if (result.error) {
-    showToast("❌ ข้อผิดพลาด: " + result.error.message);
-  } else if (result.data.user) {
-    setupApp(result.data.user);
-  }
+  if (result.error) { showToast("❌ " + result.error.message); } 
+  else if (result.data.user) { setupApp(result.data.user); }
 }
 
-async function handleLogout() {
-  await sb.auth.signOut();
-  location.reload();
-}
+async function handleLogout() { await sb.auth.signOut(); location.reload(); }
 
 // ── 2. APP INITIALIZATION ────────────────────────────────
 function setupApp(user) {
@@ -263,7 +274,6 @@ function setupApp(user) {
   document.getElementById('me-name').textContent = myProfileName;
   document.getElementById('my-connect-key').value = user.id;
 
-  // โหลดค่าความจำเก่าจาก LocalStorage (ถ้ามี)
   partnerUserId = localStorage.getItem('partner_id');
 
   initMap();
@@ -286,7 +296,7 @@ function startTracking() {
     updateMyMarker();
     broadcastData({ type: 'pos', lat: myPos.lat, lng: myPos.lng, name: myProfileName });
   }, err => {
-    showToast("⚠️ ไม่สามารถเข้าถึงพิกัดได้ โปรดเปิดสิทธิ์ความแม่นยำสูง");
+    showToast("📍 โปรดเปิดสิทธิ์แชร์ตำแหน่ง 'ความแม่นยำสูง' ในมือถือ");
   }, { enableHighAccuracy: true, maximumAge: 2000 });
 }
 
@@ -294,25 +304,21 @@ function updateMyMarker() {
   if (!myPos) return;
   const ll = [myPos.lat, myPos.lng];
   if (!meMarker) {
-    meMarker = L.marker(ll, { icon: createMarkerIcon('😊', '#6B9DFF') }).addTo(map);
-    map.setView(ll, 14);
-  } else {
-    meMarker.setLatLng(ll);
-  }
+    meMarker = L.marker(ll, { icon: createMarkerIcon('🙋‍♂️', '#4F46E5') }).addTo(map);
+    map.setView(ll, 15);
+  } else { meMarker.setLatLng(ll); }
   updateLineAndDistance();
 }
 
 function updatePartnerMarker(lat, lng, name) {
   partnerPos = { lat, lng };
   document.getElementById('partner-name').textContent = name || "แฟน";
-  document.getElementById('partner-status').textContent = "ออนไลน์เรียลไทม์";
+  document.getElementById('partner-status').textContent = "กำลังออนไลน์ 🟢";
   
   const ll = [lat, lng];
   if (!partnerMarker) {
-    partnerMarker = L.marker(ll, { icon: createMarkerIcon('🥰', '#FF6B9D') }).addTo(map);
-  } else {
-    partnerMarker.setLatLng(ll);
-  }
+    partnerMarker = L.marker(ll, { icon: createMarkerIcon('👑', '#EC4899') }).addTo(map);
+  } else { partnerMarker.setLatLng(ll); }
   updateLineAndDistance();
 }
 
@@ -320,8 +326,8 @@ function createMarkerIcon(emoji, color) {
   return L.divIcon({
     className: '',
     html: `<div style="position:relative;width:44px;height:52px">
-      <div style="width:44px;height:44px;border-radius:50%;background:${color}22;border:3px solid ${color};display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px ${color}44;">${emoji}</div>
-      <div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid ${color};"></div>
+      <div style="width:44px;height:44px;border-radius:50%;background:${color}22;border:3px solid ${color};display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 16px ${color}44;background-color:rgba(18,18,26,0.8);">${emoji}</div>
+      <div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid ${color};"></div>
     </div>`,
     iconSize:[44,52], iconAnchor:[22,52]
   });
@@ -330,10 +336,9 @@ function createMarkerIcon(emoji, color) {
 function updateLineAndDistance() {
   if (!myPos || !partnerPos) return;
   const pts = [[myPos.lat, myPos.lng], [partnerPos.lat, partnerPos.lng]];
-  if (!polyline) polyline = L.polyline(pts, { color: 'white', weight: 2, opacity: 0.5, dashArray: '4,6' }).addTo(map);
+  if (!polyline) polyline = L.polyline(pts, { color: '#FFF', weight: 2, opacity: 0.6, dashArray: '5,8' }).addTo(map);
   else polyline.setLatLngs(pts);
 
-  // คำนวณระยะทาง
   const R = 6371; 
   const dLat = (partnerPos.lat - myPos.lat) * Math.PI / 180;
   const dLng = (partnerPos.lng - myPos.lng) * Math.PI / 180;
@@ -343,58 +348,45 @@ function updateLineAndDistance() {
   const card = document.getElementById('dist-card');
   const val = document.getElementById('dist-value');
   card.style.display = 'flex';
-  val.textContent = d < 1 ? `${Math.round(d * 1000)} เมตร` : `${d.toFixed(2)} กม.`;
+  val.textContent = d < 1 ? `${Math.round(d * 1000)} ม.` : `${d.toFixed(2)} กม.`;
 }
 
-// ── 4. REALTIME SYSTEM (ROOM ID BASED ON USER IDS) ────────
+// ── 4. REALTIME MULTIPLAYER ──────────────────────────────
 function initRealtime() {
   if (!partnerUserId) return;
-  
-  // สร้าง Room ID ที่เป็นเอกลักษณ์ร่วมกันโดยเรียงจากอักษรน้อยไปมาก
   const roomId = [currentUser.id, partnerUserId].sort().join('_');
-  
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
   
   realtimeChannel = sb.channel(`track:${roomId}`)
     .on('broadcast', { event: 'share' }, ({ payload }) => {
       if (payload.sender === currentUser.id) return;
-      if (payload.type === 'pos') {
-        updatePartnerMarker(payload.lat, payload.lng, payload.name);
-      } else if (payload.type === 'heart') {
-        spawnHeartEffect();
-        showToast(`💖 ${payload.name} ส่งความคิดถึงมาให้คุณ!`);
-      }
+      if (payload.type === 'pos') { updatePartnerMarker(payload.lat, payload.lng, payload.name); } 
+      else if (payload.type === 'heart') { spawnHeartEffect(); showToast(`💝 ${payload.name} ส่งความรักให้คุณ!`); }
     })
     .subscribe(status => {
-      if(status === 'SUBSCRIBED') {
-        setTimeout(() => {
-          if(myPos) broadcastData({ type: 'pos', lat: myPos.lat, lng: myPos.lng, name: myProfileName });
-        }, 1000);
+      if(status === 'SUBSCRIBED' && myPos) {
+        broadcastData({ type: 'pos', lat: myPos.lat, lng: myPos.lng, name: myProfileName });
       }
     });
 }
 
 function broadcastData(data) {
   if (!realtimeChannel) return;
-  realtimeChannel.send({
-    type: 'broadcast',
-    event: 'share',
-    payload: { ...data, sender: currentUser.id }
-  });
+  realtimeChannel.send({ type: 'broadcast', event: 'share', payload: { ...data, sender: currentUser.id } });
 }
 
 function sendHeart() {
-  if(!partnerUserId) return showToast("🔗 โปรดเชื่อมต่อกับแฟนก่อนส่งหัวใจ");
+  if(!partnerUserId) return showToast("🔗 อย่าลืมเชื่อมต่อคีย์กับแฟนก่อนส่งหัวใจนะครับ");
   broadcastData({ type: 'heart', name: myProfileName });
   spawnHeartEffect();
-  showToast("💕 ส่งหัวใจเรียบร้อย!");
+  showToast("💕 ส่งหัวใจดวงโตให้แฟนแล้ว!");
 }
 
-// ── 5. UI CONTROLS & MODALS ──────────────────────────────
+// ── 5. UI INTERACTION ────────────────────────────────────
 function centerMap() {
   if (!myPos) return;
-  if (partnerPos) map.fitBounds([[myPos.lat, myPos.lng], [partnerPos.lat, partnerPos.lng]], { padding: [60, 60] });
-  else map.setView([myPos.lat, myPos.lng], 15);
+  if (partnerPos) map.fitBounds([[myPos.lat, myPos.lng], [partnerPos.lat, partnerPos.lng]], { padding: [80, 80] });
+  else map.setView([myPos.lat, myPos.lng], 16);
 }
 function locateMe() { if (myPos) map.setView([myPos.lat, myPos.lng], 16); }
 
@@ -418,12 +410,12 @@ function openConnectModal() {
 }
 function saveConnection() {
   const key = document.getElementById('partner-key-input').value.trim();
-  if(!key) return showToast("⚠️ กรุณาใส่คีย์ของแฟน");
-  if(key === currentUser.id) return showToast("❌ ไม่สามารถใส่คีย์ของตัวเองได้");
+  if(!key) return showToast("⚠️ กรุณากรอกคีย์ส่วนตัวของแฟน");
+  if(key === currentUser.id) return showToast("❌ ห้ามใส่คีย์ตัวเองนะครับตัวเธอ");
   
   partnerUserId = key;
   localStorage.setItem('partner_id', key);
-  showToast("✅ บันทึกการเชื่อมต่อ! กำลังดึงสัญญาณ...");
+  showToast("✅ เชื่อมต่อสำเร็จ! รอสัญญาณสักครู่...");
   closeModal('connect-modal');
   initRealtime();
 }
@@ -431,16 +423,15 @@ function saveConnection() {
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function showToast(msg) {
   const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 function spawnHeartEffect() {
-  const h = document.createElement('div'); h.className = 'floating-heart'; h.textContent = '💖';
-  h.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 60) + 'px';
-  h.style.top = (window.innerHeight * 0.7) + 'px';
-  document.body.appendChild(h); setTimeout(() => h.remove(), 2000);
+  const h = document.createElement('div'); h.className = 'heart-fx'; h.textContent = '💖';
+  h.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 80) + 'px';
+  h.style.top = (window.innerHeight * 0.6) + 'px';
+  document.body.appendChild(h); setTimeout(() => h.remove(), 1800);
 }
 
-// ตรวจสอบสถานะการล็อคอินเริ่มต้น
 checkSession();
 </script>
 </body>
